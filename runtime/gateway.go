@@ -130,7 +130,6 @@ func CreateGateway(
 	}
 
 	gateway.setupConfig(config)
-	config.Freeze()
 
 	// order matters for following setup method calls
 	if err := gateway.setupMetrics(config); err != nil {
@@ -278,6 +277,7 @@ func (gateway *Gateway) Close() {
 		gateway.runtimeMetrics.Stop()
 	}
 }
+
 
 // InspectOrDie inspects the config for this gateway
 func (gateway *Gateway) InspectOrDie() map[string]interface{} {

@@ -26,15 +26,19 @@ package main
 import (
 	"flag"
 	"runtime"
+	"io"
 	"strings"
 
+	"go.uber.org/fx"
 	"go.uber.org/zap"
+	goconfig "go.uber.org/config"
 
 	"github.com/uber/zanzibar/config"
 	"github.com/uber/zanzibar/runtime"
 
 	service "github.com/uber/zanzibar/examples/example-gateway/build/services/example-gateway"
 	module "github.com/uber/zanzibar/examples/example-gateway/build/services/example-gateway/module"
+	"os"
 )
 
 var configFiles *string
@@ -44,7 +48,7 @@ func getDirName() string {
 	return zanzibar.GetDirnameFromRuntimeCaller(file)
 }
 
-func getConfig() *zanzibar.StaticConfig {
+func getConfig() (*config.JsonProvider, error) {
 	var files []string
 
 	if configFiles == nil {
@@ -53,11 +57,30 @@ func getConfig() *zanzibar.StaticConfig {
 		files = strings.Split(*configFiles, ";")
 	}
 
-	return config.NewRuntimeConfigOrDie(files, nil)
+	fileFds := make([]io.Reader, 0, len(files))
+	for _, file := range files {
+		fd, err := os.Open(file)
+		if err != nil {
+			// TODO: Log error
+			return nil, err
+		}
+		fileFds = append(fileFds, fd)
+	}
+
+	configProvider, err := config.NewJSONProvider("", fileFds)
+	if err != nil {
+		// TODO: Log error
+		return nil, err
+	}
+
+	return configProvider, nil
 }
 
 func createGateway() (*zanzibar.Gateway, error) {
-	config := getConfig()
+	config, err := getConfig()
+	if err != nil {
+		return nil, err
+	}
 
 	gateway, _, err := service.CreateGateway(config, nil)
 	if err != nil {
@@ -118,6 +141,13 @@ func readFlags() {
 }
 
 func main() {
+	app := fx.New(
+		fx.Invoke(zanzibarMain),
+	)
+	app.Run()
+}
+
+func zanzibarMain() {
 	readFlags()
 	server, err := createGateway()
 	if err != nil {
