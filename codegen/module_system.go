@@ -121,7 +121,7 @@ type HTTPMethodType string
 type FixtureBody struct {
 	BodyType   BodyType     `yaml:"bodyType,omitempty"`
 	BodyString string       `yaml:"bodyString,omitempty"` // set BodyString if response body is string
-	Body       *FixtureBlob `yaml:"body,omitempty"`       // set Body if response body is object
+	BodyJSON   *FixtureBlob `yaml:"bodyJson,omitempty"`   // set Body if response body is object
 }
 
 // String convert FixtureBody to string
@@ -132,10 +132,10 @@ func (fb *FixtureBody) String() string {
 	case "string":
 		return fb.BodyString
 	case "json":
-		if fb.Body == nil {
+		if fb.BodyJSON == nil {
 			panic(errors.New("invalid http body type"))
 		}
-		return fb.Body.String()
+		return fb.BodyJSON.String()
 	default:
 		panic(errors.New("invalid http body type"))
 	}

@@ -52,9 +52,7 @@ func NewSimpleServiceCallHandler(deps *module.Dependencies) *SimpleServiceCallHa
 		"bazTChannel", "call", "SimpleService::Call",
 		zanzibar.NewTchannelStack([]zanzibar.MiddlewareTchannelHandle{
 			deps.Middleware.ExampleTchannel.NewMiddlewareHandle(
-				example_tchannel.Options{
-					Foo: "test",
-				},
+				example_tchannel.Options{},
 			),
 		}, handler),
 	)

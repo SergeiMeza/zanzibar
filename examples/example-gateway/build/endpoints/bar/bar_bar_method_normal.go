@@ -57,10 +57,7 @@ func NewBarNormalHandler(deps *module.Dependencies) *BarNormalHandler {
 		"bar", "normal",
 		zanzibar.NewStack([]zanzibar.MiddlewareHandle{
 			deps.Middleware.Example.NewMiddlewareHandle(
-				example.Options{
-					Baz: []string{"foo", "bar"},
-					Foo: "test",
-				},
+				example.Options{},
 			),
 		}, handler.HandleRequest).Handle,
 	)

@@ -99,8 +99,8 @@ func TestTooManyArgsSuccessfulRequestOKResponse(t *testing.T) {
 	)
 
 	headers := map[string]string{}
-	headers["X-Token"] = "test-token"
 	headers["X-Uuid"] = "test-uuid"
+	headers["X-Token"] = "test-token"
 
 	endpointRequest := []byte(`{"request":{"binaryField":"aGVsbG8=","boolField":true,"enumField":"APPLE","longField":123,"stringField":"foo","timestamp":123}}`)
 
