@@ -22,7 +22,6 @@ package codegen
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
@@ -31,6 +30,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/uber/zanzibar/codegen/template_bundle"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // AssetProvider provides access to template assets
@@ -60,7 +60,7 @@ var defaultFuncMap = tmpl.FuncMap{
 	"dec":           decrement,
 	"basePath":      filepath.Base,
 	"pascal":        PascalCase,
-	"jsonMarshal":   jsonMarshal,
+	"yamlMarshal":   yamlMarshal,
 	"isPointerType": isPointerType,
 	"unref":         unref,
 	"lintAcronym":   LintAcronym,
@@ -78,8 +78,8 @@ func decrement(num int) int {
 	return num - 1
 }
 
-func jsonMarshal(jsonObj map[string]interface{}) (string, error) {
-	str, err := json.Marshal(jsonObj)
+func yamlMarshal(yamlObj map[string]interface{}) (string, error) {
+	str, err := yaml.Marshal(yamlObj)
 	return string(str), err
 }
 

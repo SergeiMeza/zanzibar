@@ -21,7 +21,6 @@
 package codegen
 
 import (
-	"encoding/json"
 	"net/textproto"
 	"path/filepath"
 	"sort"
@@ -29,6 +28,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.uber.org/thriftrw/compile"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // EndpointMeta saves meta data used to render an endpoint.
@@ -69,7 +69,7 @@ type StructMeta struct {
 type EndpointTestMeta struct {
 	Instance           *ModuleInstance
 	Method             *MethodSpec
-	TestFixtures       map[string]*EndpointTestFixture `json:"testFixtures"`
+	TestFixtures       map[string]*EndpointTestFixture `yaml:"testFixtures"`
 	ReqHeaders         map[string]*TypedHeader
 	ResHeaders         map[string]*TypedHeader
 	ClientName         string
@@ -84,14 +84,14 @@ type FixtureBlob map[string]interface{}
 
 // String convert FixtureBlob to string
 func (fb *FixtureBlob) String() string {
-	str, err := json.Marshal(fb)
+	str, err := yaml.Marshal(fb)
 	if err != nil {
 		panic(err)
 	}
 	return string(str)
 }
 
-// BodyType can either be `json` or `string`
+// BodyType can either be `yaml` or `string`
 type BodyType string
 
 // ProtocalType can either be `http` or `tchannel`
@@ -102,9 +102,9 @@ type HTTPMethodType string
 
 // FixtureBody is used to create http body in test fixtures
 type FixtureBody struct {
-	BodyType   BodyType     `json:"bodyType,omitempty"`
-	BodyString string       `json:"bodyString,omitempty"` // set BodyString if response body is string
-	BodyJSON   *FixtureBlob `json:"bodyJson,omitempty"`   // set BodyJSON if response body is object
+	BodyType   BodyType     `yaml:"bodyType,omitempty"`
+	BodyString string       `yaml:"bodyString,omitempty"` // set BodyString if response body is string
+	BodyYAML   *FixtureBlob `yaml:"bodyYaml,omitempty"`   // set BodyYAML if response body is object
 }
 
 // String convert FixtureBody to string
@@ -114,11 +114,12 @@ func (fb *FixtureBody) String() string {
 	switch fb.BodyType {
 	case "string":
 		return fb.BodyString
+	case "yaml":
 	case "json":
-		if fb.BodyJSON == nil {
+		if fb.BodyYAML == nil {
 			panic(errors.New("invalid http body type"))
 		}
-		return fb.BodyJSON.String()
+		return fb.BodyYAML.String()
 	default:
 		panic(errors.New("invalid http body type"))
 	}
@@ -126,15 +127,15 @@ func (fb *FixtureBody) String() string {
 
 // FixtureHTTPResponse is test fixture for http response
 type FixtureHTTPResponse struct {
-	StatusCode int          `json:"statusCode"`
-	Body       *FixtureBody `json:"body,omitempty"`
+	StatusCode int          `yaml:"statusCode"`
+	Body       *FixtureBody `yaml:"body,omitempty"`
 }
 
 // FixtureResponse is test fixture for client/endpoint response
 type FixtureResponse struct {
-	ResponseType     ProtocalType         `json:"responseType"`
-	HTTPResponse     *FixtureHTTPResponse `json:"httpResponse,omitempty"`
-	TChannelResponse FixtureBlob          `json:"tchannelResponse,omitempty"`
+	ResponseType     ProtocalType         `yaml:"responseType"`
+	HTTPResponse     *FixtureHTTPResponse `yaml:"httpResponse,omitempty"`
+	TChannelResponse FixtureBlob          `yaml:"tchannelResponse,omitempty"`
 }
 
 // Body returns the string representation of FixtureResponse
@@ -155,15 +156,15 @@ func (fr *FixtureResponse) Body() string {
 
 // FixtureHTTPRequest is test fixture for client/endpoint request
 type FixtureHTTPRequest struct {
-	Method HTTPMethodType `json:"method,omitempty"`
-	Body   *FixtureBody   `json:"body,omitempty"`
+	Method HTTPMethodType `yaml:"method,omitempty"`
+	Body   *FixtureBody   `yaml:"body,omitempty"`
 }
 
 // FixtureRequest is test fixture for client/endpoint request
 type FixtureRequest struct {
-	RequestType     ProtocalType        `json:"requestType"`
-	HTTPRequest     *FixtureHTTPRequest `json:"httpRequest,omitempty"`
-	TChannelRequest FixtureBlob         `json:"tchannelRequest,omitempty"`
+	RequestType     ProtocalType        `yaml:"requestType"`
+	HTTPRequest     *FixtureHTTPRequest `yaml:"httpRequest,omitempty"`
+	TChannelRequest FixtureBlob         `yaml:"tchannelRequest,omitempty"`
 }
 
 // Body returns the string representation of FixtureRequest
@@ -184,25 +185,25 @@ func (fr *FixtureRequest) Body() string {
 
 // EndpointTestFixture saves mocked requests/responses for an endpoint test.
 type EndpointTestFixture struct {
-	TestName           string                        `json:"testName"`
-	EndpointID         string                        `json:"endpointId"`
-	HandleID           string                        `json:"handleId"`
-	EndpointRequest    FixtureRequest                `json:"endpointRequest"` // there's no difference between http or tchannel request
-	EndpointReqHeaders FixtureBlob                   `json:"endpointReqHeaders"`
-	EndpointResponse   FixtureResponse               `json:"endpointResponse"`
-	EndpointResHeaders FixtureBlob                   `json:"endpointResHeaders"`
-	ClientTestFixtures map[string]*ClientTestFixture `json:"clientTestFixtures"`
-	TestServiceName    string                        `json:"testServiceName"` // The service module that mounts the endpoint
+	TestName           string                        `yaml:"testName"`
+	EndpointID         string                        `yaml:"endpointId"`
+	HandleID           string                        `yaml:"handleId"`
+	EndpointRequest    FixtureRequest                `yaml:"endpointRequest"` // there's no difference between http or tchannel request
+	EndpointReqHeaders FixtureBlob                   `yaml:"endpointReqHeaders"`
+	EndpointResponse   FixtureResponse               `yaml:"endpointResponse"`
+	EndpointResHeaders FixtureBlob                   `yaml:"endpointResHeaders"`
+	ClientTestFixtures map[string]*ClientTestFixture `yaml:"clientTestFixtures"`
+	TestServiceName    string                        `yaml:"testServiceName"` // The service module that mounts the endpoint
 }
 
 // ClientTestFixture saves mocked client request/response for an endpoint test.
 type ClientTestFixture struct {
-	ClientID         string          `json:"clientId"`
-	ClientMethod     string          `json:"clientMethod"`
-	ClientRequest    FixtureRequest  `json:"clientRequest"` // there's no difference between http or tchannel request
-	ClientReqHeaders FixtureBlob     `json:"clientReqHeaders"`
-	ClientResponse   FixtureResponse `json:"clientResponse"`
-	ClientResHeaders FixtureBlob     `json:"clientResHeaders"`
+	ClientID         string          `yaml:"clientId"`
+	ClientMethod     string          `yaml:"clientMethod"`
+	ClientRequest    FixtureRequest  `yaml:"clientRequest"` // there's no difference between http or tchannel request
+	ClientReqHeaders FixtureBlob     `yaml:"clientReqHeaders"`
+	ClientResponse   FixtureResponse `yaml:"clientResponse"`
+	ClientResHeaders FixtureBlob     `yaml:"clientResHeaders"`
 }
 
 // NewDefaultModuleSystemWithMockHook creates a fresh instance of the default zanzibar
@@ -371,7 +372,7 @@ func NewDefaultModuleSystem(
 
 func readClientConfig(rawConfig []byte) (*ClientClassConfig, error) {
 	var clientConfig ClientClassConfig
-	if err := json.Unmarshal(rawConfig, &clientConfig); err != nil {
+	if err := yaml.Unmarshal(rawConfig, &clientConfig); err != nil {
 		return nil, errors.Wrapf(
 			err,
 			"Error reading config for client instance",
@@ -384,7 +385,7 @@ func readClientConfig(rawConfig []byte) (*ClientClassConfig, error) {
 
 func readEndpointConfig(rawConfig []byte) (*EndpointClassConfig, error) {
 	var endpointConfig EndpointClassConfig
-	if err := json.Unmarshal(rawConfig, &endpointConfig); err != nil {
+	if err := yaml.Unmarshal(rawConfig, &endpointConfig); err != nil {
 		return nil, errors.Wrapf(
 			err,
 			"Error reading config for endpoint instance",
@@ -408,12 +409,12 @@ type HTTPClientGenerator struct {
 func (g *HTTPClientGenerator) Generate(
 	instance *ModuleInstance,
 ) (*BuildResult, error) {
-	// Parse the client config from the endpoint JSON file
+	// Parse the client config from the endpoint YAML file
 	clientConfig, err := readClientConfig(instance.YAMLFileRaw)
 	if err != nil {
 		return nil, errors.Wrapf(
 			err,
-			"Error reading HTTP client %q JSON config",
+			"Error reading HTTP client %q YAML config",
 			instance.InstanceName,
 		)
 	}
@@ -509,12 +510,12 @@ type TChannelClientGenerator struct {
 func (g *TChannelClientGenerator) Generate(
 	instance *ModuleInstance,
 ) (*BuildResult, error) {
-	// Parse the client config from the endpoint JSON file
+	// Parse the client config from the endpoint YAML file
 	clientConfig, err := readClientConfig(instance.YAMLFileRaw)
 	if err != nil {
 		return nil, errors.Wrapf(
 			err,
-			"Error reading TChannel client %q JSON config",
+			"Error reading TChannel client %q YAML config",
 			instance.InstanceName,
 		)
 	}
@@ -662,12 +663,12 @@ type CustomClientGenerator struct {
 func (g *CustomClientGenerator) Generate(
 	instance *ModuleInstance,
 ) (*BuildResult, error) {
-	// Parse the client config from the endpoint JSON file
+	// Parse the client config from the endpoint YAML file
 	clientConfig, err := readClientConfig(instance.YAMLFileRaw)
 	if err != nil {
 		return nil, errors.Wrapf(
 			err,
-			"Error reading custom client %q JSON config",
+			"Error reading custom client %q YAML config",
 			instance.InstanceName,
 		)
 	}
@@ -730,7 +731,7 @@ func (g *EndpointGenerator) Generate(
 	instance *ModuleInstance,
 ) (*BuildResult, error) {
 	ret := map[string][]byte{}
-	endpointJsons := []string{}
+	endpointYamls := []string{}
 	endpointSpecs := []*EndpointSpec{}
 	endpointMeta := []*EndpointMeta{}
 	clientSpecs := readClientDependencySpecs(instance)
@@ -739,7 +740,7 @@ func (g *EndpointGenerator) Generate(
 	if err != nil {
 		return nil, errors.Wrapf(
 			err,
-			"Error reading HTTP endpoint %q JSON config",
+			"Error reading HTTP endpoint %q YAML config",
 			instance.InstanceName,
 		)
 	}
@@ -749,15 +750,15 @@ func (g *EndpointGenerator) Generate(
 		instance.Directory,
 	)
 	for _, fileName := range endpointConfig.Config.Endpoints {
-		endpointJsons = append(
-			endpointJsons, filepath.Join(endpointConfigDir, fileName),
+		endpointYamls = append(
+			endpointYamls, filepath.Join(endpointConfigDir, fileName),
 		)
 	}
-	for _, jsonFile := range endpointJsons {
-		espec, err := NewEndpointSpec(jsonFile, g.packageHelper, g.packageHelper.MiddlewareSpecs())
+	for _, yamlFile := range endpointYamls {
+		espec, err := NewEndpointSpec(yamlFile, g.packageHelper, g.packageHelper.MiddlewareSpecs())
 		if err != nil {
 			return nil, errors.Wrapf(
-				err, "Error parsing endpoint json file: %s", jsonFile,
+				err, "Error parsing endpoint yaml file: %s", yamlFile,
 			)
 		}
 
@@ -766,7 +767,7 @@ func (g *EndpointGenerator) Generate(
 		err = espec.SetDownstream(clientSpecs, g.packageHelper)
 		if err != nil {
 			return nil, errors.Wrapf(
-				err, "Error parsing downstream info for endpoint: %s", jsonFile,
+				err, "Error parsing downstream info for endpoint: %s", yamlFile,
 			)
 		}
 

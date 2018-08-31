@@ -303,7 +303,7 @@ func newClientSpec(
 		cspec.SidecarRouter = sidecarRouter
 	}
 
-	exposedMethods, ok := clientConfig.Config["exposedMethods"].(map[string]interface{})
+	exposedMethods, ok := clientConfig.Config["exposedMethods"].(map[interface{}]interface{})
 	if !ok || len(exposedMethods) == 0 {
 		return nil, errors.Errorf(
 			"No methods are exposed in client config: %s",
@@ -314,7 +314,8 @@ func newClientSpec(
 	reversed := make(map[string]string, len(exposedMethods))
 	for key, val := range exposedMethods {
 		v := val.(string)
-		cspec.ExposedMethods[key] = v
+		k := key.(string)
+		cspec.ExposedMethods[k] = v
 		if _, ok := reversed[v]; ok {
 			return nil, errors.Errorf(
 				"value %q of the exposedMethods is not unique: %s",
@@ -322,7 +323,7 @@ func newClientSpec(
 				instance.YAMLFileName,
 			)
 		}
-		reversed[v] = key
+		reversed[v] = k
 	}
 
 	return cspec, nil
