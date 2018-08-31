@@ -757,7 +757,7 @@ func augmentEndpointSpec(
 		}
 		var middlewares []MiddlewareSpec
 		for _, middleware := range endpointMids {
-			middlewareObj, ok := middleware.(map[string]interface{})
+			middlewareObj, ok := middleware.(map[interface{}]interface{})
 			if !ok {
 				return nil, errors.Errorf(
 					"Unable to parse middleware %s",
@@ -872,9 +872,9 @@ func augmentEndpointSpec(
 	return espec, nil
 }
 
-func setPropagateMiddleware(middlewareObj map[string]interface{}) (map[string]FieldMapperEntry, error) {
+func setPropagateMiddleware(middlewareObj map[interface{}]interface{}) (map[string]FieldMapperEntry, error) {
 	fieldMap := make(map[string]FieldMapperEntry)
-	opts, ok := middlewareObj["options"].(map[string]interface{})
+	opts, ok := middlewareObj["options"].(map[interface{}]interface{})
 	if !ok {
 		return nil, errors.New(
 			"missing or invalid options for propagate middleware",
@@ -883,7 +883,7 @@ func setPropagateMiddleware(middlewareObj map[string]interface{}) (map[string]Fi
 	propagates := opts["propagate"].([]interface{})
 	dest := make(map[string]string)
 	for _, propagate := range propagates {
-		propagateMap := propagate.(map[string]interface{})
+		propagateMap := propagate.(map[interface{}]interface{})
 		fromField, ok := propagateMap["from"].(string)
 		if !ok {
 			return nil, errors.New(
@@ -910,9 +910,9 @@ func setPropagateMiddleware(middlewareObj map[string]interface{}) (map[string]Fi
 	return fieldMap, nil
 }
 
-func setTransformMiddleware(middlewareObj map[string]interface{}) (map[string]FieldMapperEntry, error) {
+func setTransformMiddleware(middlewareObj map[interface{}]interface{}) (map[string]FieldMapperEntry, error) {
 	fieldMap := make(map[string]FieldMapperEntry)
-	opts, ok := middlewareObj["options"].(map[string]interface{})
+	opts, ok := middlewareObj["options"].(map[interface{}]interface{})
 	if !ok {
 		return nil, errors.Errorf(
 			"transform middleware found with no options.",
@@ -920,7 +920,7 @@ func setTransformMiddleware(middlewareObj map[string]interface{}) (map[string]Fi
 	}
 	transforms := opts["transforms"].([]interface{})
 	for _, transform := range transforms {
-		transformMap := transform.(map[string]interface{})
+		transformMap := transform.(map[interface{}]interface{})
 		fromField, ok := transformMap["from"].(string)
 		if !ok {
 			return nil, errors.New(

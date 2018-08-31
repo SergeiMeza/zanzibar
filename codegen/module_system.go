@@ -21,6 +21,7 @@
 package codegen
 
 import (
+	"encoding/json"
 	"net/textproto"
 	"path/filepath"
 	"sort"
@@ -80,18 +81,34 @@ type EndpointTestMeta struct {
 
 // FixtureBlob is map[string]interface{} that implements default string
 // used for headers and (http | tchannel) request/response
-type FixtureBlob map[string]interface{}
+type FixtureBlob map[interface{}]interface{}
+
+func toStringMap(i map[interface{}]interface{}) map[string]interface{} {
+	m := make(map[string]interface{}, len(i))
+	for k, v := range i {
+		key := k.(string)
+		switch val := v.(type) {
+		case map[interface{}]interface{}:
+			m[key] = toStringMap(val)
+		case FixtureBlob:
+			m[key] = toStringMap(val)
+		default:
+			m[key] = v
+		}
+	}
+	return m
+}
 
 // String convert FixtureBlob to string
 func (fb *FixtureBlob) String() string {
-	str, err := yaml.Marshal(fb)
+	str, err := json.Marshal(toStringMap(*fb))
 	if err != nil {
 		panic(err)
 	}
 	return string(str)
 }
 
-// BodyType can either be `yaml` or `string`
+// BodyType can either be `json` or `string`
 type BodyType string
 
 // ProtocalType can either be `http` or `tchannel`
@@ -104,7 +121,7 @@ type HTTPMethodType string
 type FixtureBody struct {
 	BodyType   BodyType     `yaml:"bodyType,omitempty"`
 	BodyString string       `yaml:"bodyString,omitempty"` // set BodyString if response body is string
-	BodyYAML   *FixtureBlob `yaml:"bodyYaml,omitempty"`   // set BodyYAML if response body is object
+	Body       *FixtureBlob `yaml:"body,omitempty"`       // set Body if response body is object
 }
 
 // String convert FixtureBody to string
@@ -114,12 +131,11 @@ func (fb *FixtureBody) String() string {
 	switch fb.BodyType {
 	case "string":
 		return fb.BodyString
-	case "yaml":
 	case "json":
-		if fb.BodyYAML == nil {
+		if fb.Body == nil {
 			panic(errors.New("invalid http body type"))
 		}
-		return fb.BodyYAML.String()
+		return fb.Body.String()
 	default:
 		panic(errors.New("invalid http body type"))
 	}
