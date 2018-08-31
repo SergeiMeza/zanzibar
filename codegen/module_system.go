@@ -409,7 +409,7 @@ func (g *HTTPClientGenerator) Generate(
 	instance *ModuleInstance,
 ) (*BuildResult, error) {
 	// Parse the client config from the endpoint JSON file
-	clientConfig, err := readClientConfig(instance.JSONFileRaw)
+	clientConfig, err := readClientConfig(instance.YAMLFileRaw)
 	if err != nil {
 		return nil, errors.Wrapf(
 			err,
@@ -510,7 +510,7 @@ func (g *TChannelClientGenerator) Generate(
 	instance *ModuleInstance,
 ) (*BuildResult, error) {
 	// Parse the client config from the endpoint JSON file
-	clientConfig, err := readClientConfig(instance.JSONFileRaw)
+	clientConfig, err := readClientConfig(instance.YAMLFileRaw)
 	if err != nil {
 		return nil, errors.Wrapf(
 			err,
@@ -663,7 +663,7 @@ func (g *CustomClientGenerator) Generate(
 	instance *ModuleInstance,
 ) (*BuildResult, error) {
 	// Parse the client config from the endpoint JSON file
-	clientConfig, err := readClientConfig(instance.JSONFileRaw)
+	clientConfig, err := readClientConfig(instance.YAMLFileRaw)
 	if err != nil {
 		return nil, errors.Wrapf(
 			err,
@@ -735,7 +735,7 @@ func (g *EndpointGenerator) Generate(
 	endpointMeta := []*EndpointMeta{}
 	clientSpecs := readClientDependencySpecs(instance)
 
-	endpointConfig, err := readEndpointConfig(instance.JSONFileRaw)
+	endpointConfig, err := readEndpointConfig(instance.YAMLFileRaw)
 	if err != nil {
 		return nil, errors.Wrapf(
 			err,

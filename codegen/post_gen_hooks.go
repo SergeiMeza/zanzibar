@@ -89,7 +89,7 @@ func ClientMockGenHook(h *PackageHelper, t *Template) (PostGenHook, error) {
 		for _, instance := range clientInstances {
 			key := instance.ClassType + instance.InstanceName
 			var mc moduleConfig
-			if err := json.Unmarshal(instance.JSONFileRaw, &mc); err != nil {
+			if err := json.Unmarshal(instance.YAMLFileRaw, &mc); err != nil {
 				return errors.Wrapf(
 					err,
 					"error parsing client-config.json for client %q",
@@ -316,7 +316,7 @@ func FindClientsWithFixture(instance *ModuleInstance) (map[string]string, error)
 	clientsWithFixture := map[string]string{}
 	for _, leaf := range instance.RecursiveDependencies["client"] {
 		var mc moduleConfig
-		if err := json.Unmarshal(leaf.JSONFileRaw, &mc); err != nil {
+		if err := json.Unmarshal(leaf.YAMLFileRaw, &mc); err != nil {
 			return nil, errors.Wrapf(
 				err,
 				"error parsing client-config.json for client %q",

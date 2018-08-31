@@ -194,7 +194,7 @@ func TestExampleService(t *testing.T) {
 		ClassType:     "tchannel",
 		Directory:     "clients/example-dependency",
 		InstanceName:  "example-dependency",
-		JSONFileName:  "client-config.json",
+		YAMLFileName:  "client-config.json",
 		PackageInfo: &PackageInfo{
 			ExportName:            "NewClient",
 			ExportType:            "Client",
@@ -216,7 +216,7 @@ func TestExampleService(t *testing.T) {
 		ClassType:     "http",
 		Directory:     "clients/example",
 		InstanceName:  "example",
-		JSONFileName:  "client-config.json",
+		YAMLFileName:  "client-config.json",
 		PackageInfo: &PackageInfo{
 			ExportName:            "NewClient",
 			ExportType:            "Client",
@@ -251,7 +251,7 @@ func TestExampleService(t *testing.T) {
 		ClassType:     "http",
 		Directory:     "endpoints/health/embedded-client",
 		InstanceName:  "embedded-client",
-		JSONFileName:  "client-config.json",
+		YAMLFileName:  "client-config.json",
 		PackageInfo: &PackageInfo{
 			ExportName:            "NewClient",
 			ExportType:            "Client",
@@ -273,7 +273,7 @@ func TestExampleService(t *testing.T) {
 		ClassType:     "http",
 		Directory:     "endpoints/health",
 		InstanceName:  "health",
-		JSONFileName:  "endpoint-config.json",
+		YAMLFileName:  "endpoint-config.json",
 		PackageInfo: &PackageInfo{
 			ExportName:            "NewEndpoint",
 			ExportType:            "Endpoint",
@@ -310,7 +310,7 @@ func TestExampleService(t *testing.T) {
 		ClassType:     "http",
 		Directory:     "more-endpoints/foo",
 		InstanceName:  "foo",
-		JSONFileName:  "endpoint-config.json",
+		YAMLFileName:  "endpoint-config.json",
 		PackageInfo: &PackageInfo{
 			ExportName:            "NewEndpoint",
 			ExportType:            "Endpoint",
@@ -347,7 +347,7 @@ func TestExampleService(t *testing.T) {
 		ClassType:     "http",
 		Directory:     "another/bar",
 		InstanceName:  "bar",
-		JSONFileName:  "endpoint-config.json",
+		YAMLFileName:  "endpoint-config.json",
 		PackageInfo: &PackageInfo{
 			ExportName:            "NewEndpoint",
 			ExportType:            "Endpoint",
@@ -775,7 +775,7 @@ func createTestInstance(name string, depInstances ...*ModuleInstance) *ModuleIns
 		ClassType:    "http",
 		Directory:    "clients/example",
 		InstanceName: name,
-		JSONFileName: "client-config.json",
+		YAMLFileName: "client-config.json",
 		PackageInfo: &PackageInfo{
 			ExportName:            "NewClient",
 			ExportType:            "Client",
@@ -926,12 +926,12 @@ func compareInstances(
 		)
 	}
 
-	if actual.JSONFileName != expected.JSONFileName {
+	if actual.YAMLFileName != expected.YAMLFileName {
 		t.Errorf(
 			"Expected %s json file name to be %s but found %s",
 			expected.ClassName,
-			expected.JSONFileName,
-			actual.JSONFileName,
+			expected.YAMLFileName,
+			actual.YAMLFileName,
 		)
 	}
 

@@ -23,7 +23,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"flag"
 	"io/ioutil"
 	"os"
@@ -37,6 +36,7 @@ import (
 	"github.com/uber/zanzibar/test/lib/util"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var logger = zap.New(
@@ -75,7 +75,7 @@ func writeConfigToFile(config map[string]interface{}) (string, error) {
 	}
 
 	jsonFile := path.Join(tempConfigDir, "production.json")
-	configBytes, err := json.Marshal(config)
+	configBytes, err := yaml.Marshal(config)
 	if err != nil {
 		return "", err
 	}
