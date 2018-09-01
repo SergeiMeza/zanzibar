@@ -334,7 +334,7 @@ type MiddlewareSpec struct {
 	// The middleware package name.
 	Name string
 	// Middleware specific configuration options.
-	Options map[string]interface{}
+	Options map[interface{}]interface{}
 	// Options pretty printed for template initialization
 	PrettyOptions map[string]string
 	// Module Dependencies,  clients etc.
@@ -805,13 +805,14 @@ func augmentEndpointSpec(
 			}
 			// TODO(sindelar): Validate Options against middleware spec and support
 			// nested typed objects.
-			opts, ok := middlewareObj["options"].(map[string]interface{})
+			opts, ok := middlewareObj["options"].(map[interface{}]interface{})
 			if !ok {
-				opts = make(map[string]interface{})
+				opts = make(map[interface{}]interface{})
 			}
 
 			prettyOpts := map[string]string{}
-			for key, value := range opts {
+			for k, value := range opts {
+				key := k.(string)
 				rValue := reflect.ValueOf(value)
 				kind := rValue.Kind()
 

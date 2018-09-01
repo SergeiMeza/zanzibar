@@ -80,10 +80,10 @@ func TestTransHeadersTypeSuccessfulRequestOKResponse(t *testing.T) {
 	assert.NoError(t, err)
 
 	headers := map[string]string{}
-	headers["x-boolean"] = "true"
-	headers["x-float"] = "3.14"
 	headers["x-int"] = "3"
 	headers["x-string"] = "2a629c1a-262a-43f0-8623-869b0256a321"
+	headers["x-boolean"] = "true"
+	headers["x-float"] = "3.14"
 
 	endpointRequest := []byte(`{"req":{}}`)
 

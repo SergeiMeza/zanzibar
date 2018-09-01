@@ -81,9 +81,9 @@ func TestTransHeadersNoReqSuccessfulRequestOKResponse(t *testing.T) {
 	assert.NoError(t, err)
 
 	headers := map[string]string{}
-	headers["b3"] = "true"
 	headers["i2"] = "321"
 	headers["s1"] = "string"
+	headers["b3"] = "true"
 
 	endpointRequest := []byte(`{}`)
 
