@@ -94,8 +94,8 @@ func TestCheckCredentialsSuccessfulRequestOKResponse(t *testing.T) {
 	)
 
 	headers := map[string]string{}
-	headers["X-Token"] = "test-token"
 	headers["X-Uuid"] = "test-uuid"
+	headers["X-Token"] = "test-token"
 
 	endpointRequest := []byte(`{"authcode":"test"}`)
 

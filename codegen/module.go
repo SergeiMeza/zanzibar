@@ -898,6 +898,7 @@ func (system *ModuleSystem) GenerateBuild(
 				filepath.Base(targetGenDir),
 				classInstance.Directory,
 			)
+			fmt.Printf("dddddddddddddd %v\n", prettyBuildPath)
 			PrintGenLine(
 				classInstance.ClassType,
 				classInstance.ClassName,

@@ -117,12 +117,12 @@ func TestTooManyArgsSuccessfulRequestOKResponse(t *testing.T) {
 	assert.Equal(t, 200, res.StatusCode)
 	assert.Equal(
 		t,
-		"test-uuid",
-		res.Header.Get("X-Uuid"))
-	assert.Equal(
-		t,
 		"test-token",
 		res.Header.Get("X-Token"))
+	assert.Equal(
+		t,
+		"test-uuid",
+		res.Header.Get("X-Uuid"))
 
 	assert.Equal(t, 1, counter)
 }

@@ -81,8 +81,8 @@ func TestTransHeadersSuccessfulRequestOKResponse(t *testing.T) {
 	assert.NoError(t, err)
 
 	headers := map[string]string{}
-	headers["x-token"] = "token"
 	headers["x-uuid"] = "uuid"
+	headers["x-token"] = "token"
 
 	endpointRequest := []byte(`{"req":{}}`)
 
